@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # Base de datos PostgreSQL para desarrollo
+  # ============================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: kyc_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kyc_user
+      POSTGRES_PASSWORD: kyc_password
+      POSTGRES_DB: kyc_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kyc_user -d kyc_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # Adminer: Interfaz web para gestionar la base de datos
+  # Acceder en: http://localhost:8080
+  # ============================================================
+  adminer:
+    image: adminer:latest
+    container_name: kyc_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+    driver: local
