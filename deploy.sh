@@ -227,7 +227,7 @@ set -e
 # Configurar Nginx
 sudo tee /etc/nginx/sites-available/kyc-seguros-latina << 'EOF'
 server {
-    listen 80;
+    listen 8050;
     server_name _;
 
     # Frontend React
@@ -301,16 +301,16 @@ echo "  Verificando despliegue..."
 echo "======================================================"
 sleep 3
 
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${SERVER_IP}/health" 2>/dev/null || echo "000")
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://${SERVER_IP}:8050/health" 2>/dev/null || echo "000")
 
 if [ "$HTTP_STATUS" = "200" ]; then
   echo ""
   echo "  ✅ Deploy exitoso"
   echo ""
   echo "  Acceso al sistema:"
-  echo "  → Aplicación KYC:  http://${SERVER_IP}"
-  echo "  → API Backend:     http://${SERVER_IP}/api"
-  echo "  → Health check:    http://${SERVER_IP}/health"
+  echo "  → Aplicación KYC:  http://${SERVER_IP}:8050"
+  echo "  → API Backend:     http://${SERVER_IP}:8050/api"
+  echo "  → Health check:    http://${SERVER_IP}:8050/health"
   echo ""
   echo "  ⚠️  Pendiente configurar en backend/.env:"
   echo "     - OPENAI_API_KEY"
@@ -324,7 +324,8 @@ if [ "$HTTP_STATUS" = "200" ]; then
   echo "  pm2 restart kyc-backend"
 else
   echo ""
-  echo "  ⚠️  El servidor respondió HTTP $HTTP_STATUS"
+  echo "  ⚠️  El servidor respondió HTTP $HTTP_STATUS en puerto 8050"
+  echo "  Verifica que el puerto 8050 esté abierto en el Security Group de AWS"
   echo "  Verifica los logs con:"
   echo "  ssh -i $PEM_KEY ${SERVER_USER}@${SERVER_IP} 'pm2 logs kyc-backend --lines 50'"
 fi
