@@ -9,6 +9,7 @@
 // ============================================================
 
 import { DatosRegistroCivil } from '../types';
+import { buscarCedulaDemo } from '../data/demoCedulas';
 import logger from '../utils/logger';
 
 /**
@@ -20,54 +21,31 @@ export interface IRegistroCivilAdapter {
 }
 
 /**
- * Adaptador MOCK para desarrollo (v1).
- * Simula la respuesta del Registro Civil con datos de prueba.
+ * Adaptador MOCK para demo (v1).
+ * Consulta la base de datos demo de 50 registros con cédulas ecuatorianas válidas.
  * Reemplazar con RealRegistroCivilAdapter en producción.
  */
 export class MockRegistroCivilAdapter implements IRegistroCivilAdapter {
-  // Base de datos mock de cédulas para pruebas
-  private readonly mockData: Record<string, Omit<DatosRegistroCivil, 'cedula'>> = {
-    '1712345678': {
-      nombres: 'JUAN CARLOS PEREZ LOPEZ',
-      fechaNacimiento: '1985-03-15',
-      estadoCivil: 'CASADO',
-    },
-    '0912345678': {
-      nombres: 'MARIA ELENA RODRIGUEZ TORRES',
-      fechaNacimiento: '1990-07-22',
-      estadoCivil: 'SOLTERA',
-    },
-    '1709876543': {
-      nombres: 'CARLOS ANDRES GOMEZ VARGAS',
-      fechaNacimiento: '1978-11-30',
-      estadoCivil: 'DIVORCIADO',
-    },
-  };
-
   async consultarCedula(cedula: string): Promise<DatosRegistroCivil> {
-    logger.debug('MockRegistroCivil: consultando cédula', { cedula });
+    logger.debug('MockRegistroCivil: consultando cédula en base demo', { cedula });
 
-    // Simular latencia de red (200-500ms)
-    await new Promise((resolve) => setTimeout(resolve, 200 + Math.random() * 300));
+    // Simular latencia de red (300-700ms)
+    await new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 400));
 
-    const datosConocidos = this.mockData[cedula];
+    const registro = buscarCedulaDemo(cedula);
 
-    if (datosConocidos) {
+    if (registro) {
       return {
         cedula,
-        ...datosConocidos,
+        nombres: registro.nombres,
+        fechaNacimiento: registro.fechaNacimiento,
+        estadoCivil: registro.estadoCivil,
         fuenteDatos: 'mock',
       };
     }
 
-    // Para cédulas no registradas en el mock, devolver datos genéricos
-    return {
-      cedula,
-      nombres: 'NOMBRE APELLIDO EJEMPLO',
-      fechaNacimiento: '1990-01-01',
-      estadoCivil: 'SOLTERO',
-      fuenteDatos: 'mock',
-    };
+    // Cédula no encontrada en la base demo → el frontend mostrará ingreso manual
+    throw new Error(`Cédula ${cedula} no encontrada en el Registro Civil`);
   }
 }
 
