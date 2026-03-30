@@ -45,7 +45,7 @@ export class MockRegistroCivilAdapter implements IRegistroCivilAdapter {
     }
 
     // Cédula no encontrada en la base demo → el frontend mostrará ingreso manual
-    throw new Error(`Cédula ${cedula} no encontrada en el Registro Civil`);
+    throw new Error(`CEDULA_NO_ENCONTRADA: ${cedula}`);
   }
 }
 

@@ -22,11 +22,21 @@ const PORT = process.env.PORT || 3001;
 // ============================================================
 
 // CORS: permitir peticiones del frontend
+const origenesPermitidos = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:8050'];
+
 app.use(
   cors({
-    origin: process.env.NODE_ENV === 'production'
-      ? ['https://kyc.seguroslatina.com'] // Ajustar en producción
-      : ['http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Permitir requests sin origin (curl, Postman, server-side)
+      if (!origin) return callback(null, true);
+      // En desarrollo o demo, permitir cualquier origen HTTP de la misma IP
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+      // En producción, validar contra lista blanca
+      if (origenesPermitidos.includes(origin)) return callback(null, true);
+      callback(new Error(`Origen no permitido por CORS: ${origin}`));
+    },
     credentials: true,
   })
 );

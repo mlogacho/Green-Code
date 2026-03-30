@@ -44,7 +44,16 @@ export async function consultarCedulaController(
       datos,
     });
   } catch (error) {
-    // Si el Registro Civil falla, informar al frontend para usar ingreso manual
+    // Cédula no encontrada en la base de datos
+    if (error instanceof Error && error.message.startsWith('CEDULA_NO_ENCONTRADA')) {
+      res.status(404).json({
+        exito: false,
+        codigo: 'CEDULA_NO_ENCONTRADA',
+        mensaje: 'Cédula no encontrada en el Registro Civil. Por favor ingrese los datos manualmente.',
+      });
+      return;
+    }
+    // Error de conexión al Registro Civil → ingreso manual
     if (error instanceof Error && error.message.includes('Registro Civil')) {
       logger.warn('Error consultando Registro Civil, activar ingreso manual', {
         error: error.message,
