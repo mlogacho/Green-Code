@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-backend",
+      "type": "shell",
+      "command": "npm run build",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": "build",
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "▶ Iniciar Backend",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/backend" },
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "kyc"
+      },
+      "problemMatcher": {
+        "pattern": { "regexp": "^(.*)$", "file": 1, "line": 2, "message": 3 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "iniciando",
+          "endsPattern": "puerto"
+        }
+      }
+    },
+    {
+      "label": "▶ Iniciar Frontend",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/frontend" },
+      "group": "none",
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "kyc"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🚀 Iniciar KYC Completo",
+      "dependsOn": ["▶ Iniciar Backend", "▶ Iniciar Frontend"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always" }
+    },
+    {
+      "label": "📦 Instalar dependencias",
+      "type": "shell",
+      "command": "npm install --legacy-peer-deps && cd backend && npm install --legacy-peer-deps && cd ../frontend && npm install --legacy-peer-deps",
+      "options": { "cwd": "${workspaceFolder}" },
+      "group": "none",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    }
+  ]
+}
